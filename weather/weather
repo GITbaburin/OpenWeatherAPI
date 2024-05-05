@@ -1,0 +1,29 @@
+#!/opt/homebrew/bin/python3
+from exceptions import ApiServiceError, CantGetCoordinates
+from coordinates import get_coordinates
+from weather_api_service import get_weather
+from weather_formatter import format_weather
+from history import JSONFileWeatherStorage, save_weather 
+from pathlib import Path
+
+def main():
+    try:
+        coordinates = get_coordinates()
+    except CantGetCoordinates:
+        print("can`t get gps coordinates")
+        exit(1)
+    try:
+        weather = get_weather(coordinates)
+    except ApiServiceError:
+        print("can`t get weather from API service")
+        exit(1)
+    print(format_weather(weather))
+    save_weather(
+        weather, 
+        JSONFileWeatherStorage(Path.cwd() / "history.json")
+    )
+
+
+if __name__ == "__main__":
+    main()
+
